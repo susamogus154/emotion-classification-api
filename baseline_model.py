@@ -59,6 +59,5 @@ class EmotionClassifier(nn.Module):
     with torch.no_grad():
       outputs = self.forward(image_tensor) # forward function
       probabilities = torch.nn.functional.softmax(outputs, dim=1) # final softmax activation function
-    # return probabilities.cpu()numpy().flatten() # convert to np array (final output)
-    print(probabilities)
+       
     return probabilities.numpy().flatten()
