@@ -1,17 +1,3 @@
-"""
-// record audio and send
-const formData = new FormData()
-formData.append("file", audioBlob, "recording.wav")
-
-const response = await fetch("http://localhost:8000/predict", {
-    method: "POST",
-    body: formData  // no Content-Type header — browser sets it automatically
-})
-
-const emotions = await response.json()
-// emotions = { "Angry": 0.12, "Happy": 0.45, ... }
-"""
-
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 import torch
