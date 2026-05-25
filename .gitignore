@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Virtual environment
+venv/
+.venv/
+
+# Model weights - too large for git
+# *.pt
+# *.pth
+# *.ckpt
+
+# Data
+data/raw/
+*.wav
+*.mp3
+
+# OS
+.DS_Store
+Thumbs.db
+
+# workspace
+*.code-workspace
