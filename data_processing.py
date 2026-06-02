@@ -31,11 +31,12 @@ def preprocess_image(audio_file):
 
     S = librosa.feature.melspectrogram(y=resized_audio, sr=sr, n_mels=128, n_fft=512)
     S_db = librosa.amplitude_to_db(S, ref=np.max)
-    S_db = S_db.astype(np.uint8)
 
-    img = Image.fromarray(S_db, mode='L').convert("RGB")
+    S_norm = (S_db - S_db.min()) / (S_db.max() - S_db.min()) * 255
+    S_norm = S_norm.astype(np.uint8)
+
+    img = Image.fromarray(S_norm, mode='L').convert("RGB")
     tensor_transform = transforms.Compose([ transforms.ToTensor() ])
     tensor = tensor_transform(img)
 
     return tensor.unsqueeze(0) # make it look like a batch of size 1
-    
