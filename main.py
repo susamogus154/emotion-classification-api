@@ -46,3 +46,9 @@ async def predict_endpoint(file: UploadFile = File(...)):
     probs = model.predict(processed_audio)
     
     return {label_dict[i]: float(probs[i]) for i in range(7)}
+
+@app.post("/preprocess")
+async def preprocess_endpoint(file: UploadFile = File(...)):
+    audio_bytes = await file.read()
+    processed_audio = preprocess_image(audio_bytes)
+    return {"processed_audio": processed_audio.tolist()}

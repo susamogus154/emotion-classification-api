@@ -36,6 +36,7 @@ def preprocess_image(audio_file):
     S_norm = S_norm.astype(np.uint8)
 
     img = Image.fromarray(S_norm, mode='L').convert("RGB")
+    img.save("/tmp/debug_mel.png")
     tensor_transform = transforms.Compose([ transforms.ToTensor() ])
     tensor = tensor_transform(img)
 
