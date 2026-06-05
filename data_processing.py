@@ -4,6 +4,9 @@ from PIL import Image
 import io
 import torch
 import torchvision.transforms as transforms
+import matplotlib
+import matplotlib.pyplot as plt
+matplotlib.use('Agg')
 
 def resize_audio(audio_array, target_length=40000):
     current_length = len(audio_array)
@@ -23,21 +26,18 @@ def resize_audio(audio_array, target_length=40000):
     return audio_array
 
 
-
 def preprocess_image(audio_file):
     audio, sr = librosa.load(io.BytesIO(audio_file))
-
     resized_audio = resize_audio(audio_array=audio)
-
+    
     S = librosa.feature.melspectrogram(y=resized_audio, sr=sr, n_mels=128, n_fft=512)
     S_db = librosa.amplitude_to_db(S, ref=np.max)
-
-    S_norm = (S_db - S_db.min()) / (S_db.max() - S_db.min()) * 255
-    S_norm = S_norm.astype(np.uint8)
-
-    img = Image.fromarray(S_norm, mode='L').convert("RGB")
-    img.save("/tmp/debug_mel.png")
-    tensor_transform = transforms.Compose([ transforms.ToTensor() ])
-    tensor = tensor_transform(img)
-
-    return tensor.unsqueeze(0) # make it look like a batch of size 1
+    
+    # match training exactly — save with matplotlib then reload
+    buf = io.BytesIO()
+    plt.imsave(buf, S_db, format='png')
+    buf.seek(0)
+    
+    img = Image.open(buf).convert("RGB")
+    tensor = transforms.ToTensor()(img)
+    return tensor.unsqueeze(0)

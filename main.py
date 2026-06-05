@@ -45,7 +45,12 @@ async def predict_endpoint(file: UploadFile = File(...)):
     processed_audio = preprocess_image(audio_bytes)
     probs = model.predict(processed_audio)
     
-    return {label_dict[i]: float(probs[i]) for i in range(7)}
+    return {
+        "raw audio shape": audio_bytes.__len__(),
+        "mel spectrogram shape": processed_audio.shape,
+        "mel spectrogram tensor": processed_audio.tolist(),
+        "emotions": {label_dict[i]: float(probs[i]) for i in range(7)}
+    }
 
 @app.post("/preprocess")
 async def preprocess_endpoint(file: UploadFile = File(...)):
