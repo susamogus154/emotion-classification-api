@@ -6,7 +6,16 @@ import torch
 import torchvision.transforms as transforms
 import matplotlib
 import matplotlib.pyplot as plt
+import subprocess
 matplotlib.use('Agg')
+
+def reformat_audio(audio_file):
+    result = subprocess.run(
+        ['ffmpeg', '-i', 'pipe:0', '-f', 'wav', '-ar', '22050', 'pipe:1'],
+        input=audio_file,
+        capture_output=True
+    )
+    return result.stdout
 
 def resize_audio(audio_array, target_length=40000):
     current_length = len(audio_array)
@@ -27,6 +36,8 @@ def resize_audio(audio_array, target_length=40000):
 
 
 def preprocess_image(audio_file):
+    audio_file = reformat_audio(audio_file)
+
     audio, sr = librosa.load(io.BytesIO(audio_file))
     resized_audio = resize_audio(audio_array=audio)
     
@@ -41,3 +52,4 @@ def preprocess_image(audio_file):
     img = Image.open(buf).convert("RGB")
     tensor = transforms.ToTensor()(img)
     return tensor.unsqueeze(0)
+
