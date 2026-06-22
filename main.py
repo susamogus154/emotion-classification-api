@@ -6,8 +6,8 @@ import numpy as np
 from PIL import Image
 import torchvision.transforms as transforms
 import io
-from baseline_model import EmotionClassifier
-from data_processing import preprocess_image, resize_audio
+from baseline_model import EmotionHead, extract_features
+import data_processing
 
 app = FastAPI()
 
@@ -19,11 +19,9 @@ app.add_middleware(
 )
 
 # load model once on startup
-model = EmotionClassifier(num_classes=7)
-model.load_state_dict(torch.load("best_model.pt", map_location="cpu"))
+model = EmotionHead(num_classes=7)
+# model.load_state_dict(torch.load("best_model.pt", map_location="cpu"))
 model.eval()
-
-transform = transforms.ToTensor()
 
 label_dict = {
     0: "Angry", 1: "Disgusted", 2: "Fearful",
@@ -42,12 +40,14 @@ def get_labels():
 async def predict_endpoint(file: UploadFile = File(...)):
     audio_bytes = await file.read()
 
-    processed_audio = preprocess_image(audio_bytes)
-    probs = model.predict(processed_audio)
+    raw_audio, sr = librosa.load(io.BytesIO(audio_bytes))
+    processed_audio = data_processing.reformat_audio(audio_bytes)
+
+    features = extract_features(processed_audio, sr=16000)
+    probs = model.predict(features)
     
     return {
         "raw audio shape": audio_bytes.__len__(),
-        "mel spectrogram shape": processed_audio.shape,
-        "mel spectrogram tensor": processed_audio.tolist(),
+        "features shape": features.shape,
         "emotions": {label_dict[i]: float(probs[i]) for i in range(7)}
     }
