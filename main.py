@@ -2,9 +2,6 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 import torch
 import librosa
-import numpy as np
-from PIL import Image
-import torchvision.transforms as transforms
 import io
 from baseline_model import EmotionHead, extract_features
 import data_processing
@@ -20,7 +17,7 @@ app.add_middleware(
 
 # load model once on startup
 model = EmotionHead(num_classes=7)
-# model.load_state_dict(torch.load("best_model.pt", map_location="cpu"))
+model.load_state_dict(torch.load("best_model.pt", map_location="cpu"))
 model.eval()
 
 label_dict = {
@@ -40,10 +37,10 @@ def get_labels():
 async def predict_endpoint(file: UploadFile = File(...)):
     audio_bytes = await file.read()
 
-    raw_audio, sr = librosa.load(io.BytesIO(audio_bytes))
-    processed_audio = data_processing.reformat_audio(audio_bytes)
+    processed_audio_bytes = data_processing.reformat_audio(audio_bytes)
+    audio, _ = librosa.load(io.BytesIO(processed_audio_bytes))
 
-    features = extract_features(processed_audio, sr=16000)
+    features = extract_features(audio, sr=16000)
     probs = model.predict(features)
     
     return {

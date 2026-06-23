@@ -1,8 +1,5 @@
 import torch
 import torch.nn as nn
-import torchvision.transforms as transforms
-import numpy as np
-import io
 from transformers import Wav2Vec2FeatureExtractor, HubertModel
 
 
@@ -38,7 +35,7 @@ class EmotionHead(nn.Module): # dense dropout layer then final dense
         self.eval()
         with torch.no_grad():
             outputs = self.forward(features) # forward function
-            print(outputs.shape) # !!! figure out which dimension to softmax along
+            print(outputs.shape) 
             probabilities = torch.nn.functional.softmax(outputs, dim=1) # final softmax activation function
             
         return probabilities.numpy().flatten()
