@@ -1,10 +1,12 @@
 import torch
 import torch.nn as nn
-from transformers import Wav2Vec2FeatureExtractor, HubertModel
 
+from transformers import Wav2Vec2FeatureExtractor, HubertModel
 
 feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained("facebook/hubert-base-ls960")
 hubert = HubertModel.from_pretrained("facebook/hubert-base-ls960")
+
+
 hubert.eval()
 for param in hubert.parameters():
     param.requires_grad = False
